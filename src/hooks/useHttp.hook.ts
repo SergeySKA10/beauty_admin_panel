@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
+import { LoadingStatusOptions, HTTPRequestMethods } from "../shared/interfaces/options";
 
-// тип для запросов
-type HTTPRequestMethods = 'GET' | 'POST' | 'PATCH' | 'DELETE';
+
 
 // интерфейс для заголовков запросов
 interface HTTPHeaders {
@@ -19,8 +19,8 @@ interface RequestConfig {
 
 
 export const useHttp = () => {
-    const [loadingStatus, setLoadingStatus] = useState<string>('idle');
-    const [error, setError] = useState<string | null>(null);
+    const [loadingStatus, setLoadingStatus] = useState<LoadingStatusOptions>('idle');
+    // const [error, setError] = useState<string | null>(null);
     
     const request = useCallback(
         async ({

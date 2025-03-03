@@ -1,16 +1,16 @@
 import { useHttp } from "../hooks/useHttp.hook";
 import hasRequiredFields from "../utils/hasRequiredFields";
+import dayjs from "dayjs";
 
 // импортируем интерфейс
-import { IAppointment } from '../shared/interfaces/appointment.interface';
-import { ActiveAppointment } from "../shared/interfaces/appointment.interface";
+import { IAppointment, ActiveAppointment } from '../shared/interfaces/appointment.interface';
 
 const requiredFields = ['id', 'date', 'name', 'service', 'phone', 'canceled']
 
 const useAppointmentService = () => {
     const {loadingStatus, request} = useHttp();
 
-    const _apiBase = 'http';
+    const _apiBase = 'http://localhost:3001/appointments';
 
     const getAllAppointments = async(): Promise<IAppointment[]> => {
         const res = await request({url: _apiBase});
@@ -22,25 +22,24 @@ const useAppointmentService = () => {
         }
     };
 
-    // const getAllActiveAppointments = async(): Promise<ActiveAppointment[]> => {
-    //     const appointments = await getAllAppointments();
-    //     return appointments.filter((item) => item.canceled === false)
-    // }
-
-    // функционла по трансформированию данных - убираем свойство canceled 
+    // функционла по фильтрации и трансформированию данных - убираем свойство canceled 
     const getAllActiveAppointments = async(): Promise<ActiveAppointment[]> => {
         const appointments = await getAllAppointments();
-        const transformData: ActiveAppointment[] = appointments.map((item) => {
-            return {
-                id: item.id,
-                name: item.name,
-                date: item.date,
-                service: item.service,
-                phone: item.phone
-            }
-        });
+        const transformed: ActiveAppointment[] = appointments
+                    .filter((item) => {
+                        return item.canceled === false && dayjs(item.date).diff(undefined, 'minute') > 0; // условия фильтрации -> если по дате запись еще активна (разница между датой посещения и текущем времени в минутах > 0)
+                    })
+                    .map((item) => {
+                        return {
+                            id: item.id,
+                            name: item.name,
+                            date: item.date,
+                            service: item.service,
+                            phone: item.phone
+                        }
+                    });
 
-        return transformData;
+        return transformed;
     }
 
     return {
@@ -49,3 +48,5 @@ const useAppointmentService = () => {
         getAllActiveAppointments
     }
 }
+
+export default useAppointmentService;
