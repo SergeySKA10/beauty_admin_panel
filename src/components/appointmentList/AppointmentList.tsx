@@ -1,5 +1,6 @@
-import {useContext, useEffect, useState, ReactNode } from 'react';
+import {useContext, useEffect, useState} from 'react';
 import AppointmentItem from "../appointmentItem.tsx/AppointmentItem";
+import CancelModal from '../modal/CancelModal';
 import { AppointmentContext } from "../../context/appointments/AppointmentsContext";
 import Spinner from '../spinner/Spinner';
 import Error from '../error/Error';
@@ -7,8 +8,11 @@ import Error from '../error/Error';
 function AppointmentList() {
 	// достаем данные из контекста
 	const {activeAppointments, getActiveAppointments, appointmentLoadingStatus} = useContext(AppointmentContext);
-	// контент для рендеринга
-	const [content, setContent] = useState<ReactNode>(null);
+
+	// создаем state для модального окна
+	const [isOpen, setIsOpen] = useState(false); 
+	// создаем state для получения id выбранной записи
+	const [selectedId, selectId] = useState(0);
 
 	// запрос данных
 	useEffect(() => {
@@ -16,41 +20,34 @@ function AppointmentList() {
 	}, []);
 
 	// формирование контента
-	useEffect(() => {
-		switch(appointmentLoadingStatus) {
-			case 'idle':
-				setContent(content => activeAppointments.map(el => {
-					return <AppointmentItem {...el} key={el.id}/>
-				}));
-				break;
-			case 'loading':
-				setContent(content => <Spinner/>);
-				break;
-			case 'error':
-				setContent(content => {
-					return (
-						<>
-							<Error/>
-							<button 
-								className='schedule__reload'
-								onClick={getActiveAppointments}>
-									Try to reload
-							</button>
-							
-						</>
-					)
-				});
-				break;
-			default:
-				setContent(content => null);
-		}
-	}, [appointmentLoadingStatus]);
+	if (appointmentLoadingStatus === 'loading') {
+		return <Spinner/>
+	} else if (appointmentLoadingStatus === 'error') {
+		return (
+			<>
+				<Error/>
+				<button 
+					className='schedule__reload'
+					onClick={getActiveAppointments}>
+						Try to reload
+				</button>
+				
+			</>
+		)
+	}
 
 	return (
 		<>
-			{content}
+			{activeAppointments.map(el => {
+				return <AppointmentItem 
+					{...el} 
+					modalOpen={setIsOpen} 
+					key={el.id}
+					selectId={() => selectId(el.id)}/>	
+			})}
+			{isOpen ? <CancelModal handleClose={setIsOpen} selectedId={selectedId}/> : null}
 		</>
-	);
+	)
 }
 
 export default AppointmentList;

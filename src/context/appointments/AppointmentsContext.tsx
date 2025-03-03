@@ -35,10 +35,11 @@ export const AppointmentContext = createContext<AppointmentContextValue>({
 
 // создадим компонент провайдер
 const AppointmentContextProvider = ({children}: ProviderProps) => {
-    const { loadingStatus, getAllAppointments, getAllActiveAppointments} = useAppointmentService();
-
     // используем useReducer, создаем state в компоненете который будет использоваться внутри всех children 
     const [state, dispatch] = useReducer(reducer, initialState); 
+
+    // вытаскиваем переменные с useAppointmentService
+    const { loadingStatus, getAllAppointments, getAllActiveAppointments} = useAppointmentService();
 
     // context который будет передаваться в props children 
     const value: AppointmentContextValue = {

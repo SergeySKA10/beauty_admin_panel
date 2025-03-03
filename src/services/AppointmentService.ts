@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 // импортируем интерфейс
 import { IAppointment, ActiveAppointment } from '../shared/interfaces/appointment.interface';
 
-const requiredFields = ['id', 'date', 'name', 'service', 'phone', 'canceled']
+const requiredFields = ['id', 'date', 'name', 'service', 'phone', 'canceled'];
 
 const useAppointmentService = () => {
     const {loadingStatus, request} = useHttp();

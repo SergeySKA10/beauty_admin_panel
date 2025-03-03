@@ -1,8 +1,6 @@
 import { useState, useCallback } from "react";
 import { LoadingStatusOptions, HTTPRequestMethods } from "../shared/interfaces/options";
 
-
-
 // интерфейс для заголовков запросов
 interface HTTPHeaders {
     [key: string]: string

@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
-import { ActiveAppointment } from '../../shared/interfaces/appointment.interface';
+import { IAppointment } from '../../shared/interfaces/appointment.interface';
+import { Optional } from 'utility-types';
+
 import "./appointmentItem.scss";
 
-interface PropsActiveAppointment extends Partial<ActiveAppointment> {}
+type AppointmentProps = Optional<IAppointment, 'canceled'> & {
+	modalOpen: (state: boolean) => void;
+	selectId: () => void;
+}
 
-function AppointmentItem({date, name, service, phone}: PropsActiveAppointment) {
+function AppointmentItem({date, name, service, phone, canceled, modalOpen, selectId}: AppointmentProps) {
 	// с помощью библиотеки форматируем дату
 	const formattedDate = dayjs(date).format("DD/MM/YYYY HH:mm");
 
@@ -43,14 +48,21 @@ function AppointmentItem({date, name, service, phone}: PropsActiveAppointment) {
 				<span className="appointment__service">Service: {service}</span>
 				<span className="appointment__phone">Phone: {phone}</span>
 			</div>
-			<div className="appointment__time">
-				<span>Time left:</span>
-				<span className="appointment__timer">{timeLeft}</span>
-			</div>
-			<button className="appointment__cancel">Cancel</button>
-			{/* <div className="appointment__canceled">Canceled</div> */}
+			{!canceled ? (
+				<>
+					<div className="appointment__time">
+						<span>Time left:</span>
+						<span className="appointment__timer">{timeLeft}</span>
+					</div>
+					<button className="appointment__cancel" onClick={() => {
+						modalOpen(true);
+						selectId()}}>Cancel</button>
+				</>
+			) : null}
+			{canceled ? <div className="appointment__canceled">Canceled</div> : null}
 		</div>
 	);
 }
 
 export default AppointmentItem;
+
