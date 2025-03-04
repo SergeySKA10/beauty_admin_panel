@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import dayjs from 'dayjs';
 import { IAppointment } from '../../shared/interfaces/appointment.interface';
 import { Optional } from 'utility-types';
@@ -6,11 +6,12 @@ import { Optional } from 'utility-types';
 import "./appointmentItem.scss";
 
 type AppointmentProps = Optional<IAppointment, 'canceled'> & {
-	modalOpen: (state: boolean) => void;
-	selectId: () => void;
+	modalOpen: (state: number) => void;
 }
 
-function AppointmentItem({date, name, service, phone, canceled, modalOpen, selectId}: AppointmentProps) {
+// создаем мемоизированный компонент, чтобы перерендер происходил тогда, когда меняeтся props
+
+const AppointmentItem = memo(({id, date, name, service, phone, canceled, modalOpen}: AppointmentProps) => {
 	// с помощью библиотеки форматируем дату
 	const formattedDate = dayjs(date).format("DD/MM/YYYY HH:mm");
 
@@ -54,15 +55,16 @@ function AppointmentItem({date, name, service, phone, canceled, modalOpen, selec
 						<span>Time left:</span>
 						<span className="appointment__timer">{timeLeft}</span>
 					</div>
-					<button className="appointment__cancel" onClick={() => {
-						modalOpen(true);
-						selectId()}}>Cancel</button>
+					<button 
+						className="appointment__cancel" 
+						onClick={() => modalOpen(id)}
+					>Cancel</button>
 				</>
 			) : null}
 			{canceled ? <div className="appointment__canceled">Canceled</div> : null}
 		</div>
 	);
-}
+})
 
 export default AppointmentItem;
 

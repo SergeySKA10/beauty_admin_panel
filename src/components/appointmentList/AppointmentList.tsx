@@ -1,4 +1,4 @@
-import {useContext, useEffect, useState} from 'react';
+import {useCallback, useContext, useEffect, useState} from 'react';
 import AppointmentItem from "../appointmentItem.tsx/AppointmentItem";
 import CancelModal from '../modal/CancelModal';
 import { AppointmentContext } from "../../context/appointments/AppointmentsContext";
@@ -17,6 +17,12 @@ function AppointmentList() {
 	// запрос данных
 	useEffect(() => {
 		getActiveAppointments(); // делаем запрос
+	}, []);
+
+	// создаем функцию открытия модального окна и кешируем ее работу, чтобы недопустить лишнего рендера компонентов
+	const handleOpenModal = useCallback((id: number): void => {
+		setIsOpen(true);
+		selectId(id);
 	}, []);
 
 	// формирование контента
@@ -41,9 +47,8 @@ function AppointmentList() {
 			{activeAppointments.map(el => {
 				return <AppointmentItem 
 					{...el} 
-					modalOpen={setIsOpen} 
-					key={el.id}
-					selectId={() => selectId(el.id)}/>	
+					modalOpen={handleOpenModal} 
+					key={el.id}/>	
 			})}
 			<CancelModal handleClose={setIsOpen} selectedId={selectedId} isOpen={isOpen}/>
 		</>
