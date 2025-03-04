@@ -1,5 +1,5 @@
 import Portal from "../portal/portal";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { CSSTransition } from "react-transition-group";
 import "./modal.scss";
 
@@ -12,6 +12,21 @@ interface IMpdalProps {
 function CancelModal({handleClose, selectedId, isOpen}: IMpdalProps) {
 	// создадим реф - типизируем его так как он будет работать с div
 	const nodeRef = useRef<HTMLDivElement>(null);
+
+	// функция закрытия модального окна при нажатии на клавишу Escape
+	function keyboardCloseModal(e: KeyboardEvent): void {
+		if (e.code === 'Escape') {
+			handleClose(false);
+		}
+	}
+
+	useEffect(() => {
+		window.addEventListener('keydown', keyboardCloseModal);
+
+		return () => {
+			window.removeEventListener('keydown', keyboardCloseModal);
+		}
+	}, []);
 
 	return (
 		<Portal>
