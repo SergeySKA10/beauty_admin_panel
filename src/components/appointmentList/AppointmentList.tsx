@@ -45,7 +45,7 @@ function AppointmentList() {
 					key={el.id}
 					selectId={() => selectId(el.id)}/>	
 			})}
-			{isOpen ? <CancelModal handleClose={setIsOpen} selectedId={selectedId}/> : null}
+			<CancelModal handleClose={setIsOpen} selectedId={selectedId} isOpen={isOpen}/>
 		</>
 	)
 }
