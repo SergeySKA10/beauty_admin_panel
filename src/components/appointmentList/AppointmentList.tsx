@@ -4,6 +4,7 @@ import CancelModal from '../modal/CancelModal';
 import { AppointmentContext } from "../../context/appointments/AppointmentsContext";
 import Spinner from '../spinner/Spinner';
 import Error from '../error/Error';
+import { TransitionGroup } from 'react-transition-group';
 
 function AppointmentList() {
 	// достаем данные из контекста
@@ -43,7 +44,7 @@ function AppointmentList() {
 	}
 
 	return (
-		<>
+		<TransitionGroup className='schedule__list'>
 			{activeAppointments.map(el => {
 				return <AppointmentItem 
 					{...el} 
@@ -51,7 +52,7 @@ function AppointmentList() {
 					key={el.id}/>	
 			})}
 			<CancelModal handleClose={setIsOpen} selectedId={selectedId} isOpen={isOpen}/>
-		</>
+		</TransitionGroup>
 	)
 }
 

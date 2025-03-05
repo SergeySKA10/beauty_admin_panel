@@ -19,6 +19,7 @@ interface ProviderProps {
 interface AppointmentContextValue extends IAppointmentState {
     getAppointments: () => void;
     getActiveAppointments: () => void;
+    canceledActiveAppointment: (id: number) => void;
 }
 
 // создадим context с изначальными значениями которые далее заменяться
@@ -30,7 +31,8 @@ export const AppointmentContext = createContext<AppointmentContextValue>({
     activeAppointments: initialState.activeAppointments,
     // метод по получению данных
     getAppointments: () => {},
-    getActiveAppointments: () => {}
+    getActiveAppointments: () => {},
+    canceledActiveAppointment: () => {}
 });
 
 // создадим компонент провайдер
@@ -39,7 +41,7 @@ const AppointmentContextProvider = ({children}: ProviderProps) => {
     const [state, dispatch] = useReducer(reducer, initialState); 
 
     // вытаскиваем переменные с useAppointmentService
-    const { loadingStatus, getAllAppointments, getAllActiveAppointments} = useAppointmentService();
+    const { loadingStatus, getAllAppointments, getAllActiveAppointments, patchActiveAppointment} = useAppointmentService();
 
     // context который будет передаваться в props children 
     const value: AppointmentContextValue = {
@@ -56,8 +58,13 @@ const AppointmentContextProvider = ({children}: ProviderProps) => {
         getActiveAppointments: () => {
             // делаем запрос по получению только активных записей
             getAllActiveAppointments().then(data => {
-                dispatch({type: ActionsTypes.SET_ACTIVE_APPOINTMENTS, payload: data}) // оновляем state 
+                dispatch({type: ActionsTypes.SET_ACTIVE_APPOINTMENTS, payload: data}) // обновляем state 
             })
+        },
+        canceledActiveAppointment: (id: number) => {
+            patchActiveAppointment(id).then(data => {
+                dispatch({type: ActionsTypes.PATCH_ACTIVE_APPOINTMENTS, payload: id}) 
+            });
         }
     }
 

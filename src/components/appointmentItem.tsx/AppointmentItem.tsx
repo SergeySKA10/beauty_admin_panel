@@ -2,6 +2,7 @@ import { useState, useEffect, memo } from 'react';
 import dayjs from 'dayjs';
 import { IAppointment } from '../../shared/interfaces/appointment.interface';
 import { Optional } from 'utility-types';
+import { CSSTransition } from 'react-transition-group';
 
 import "./appointmentItem.scss";
 
@@ -42,27 +43,29 @@ const AppointmentItem = memo(({id, date, name, service, phone, canceled, modalOp
 	}, [date])
 
 	return (
-		<div className="appointment">
-			<div className="appointment__info">
-				<span className="appointment__date">{formattedDate}</span>
-				<span className="appointment__name">Name: {name}</span>
-				<span className="appointment__service">Service: {service}</span>
-				<span className="appointment__phone">Phone: {phone}</span>
+		<CSSTransition key={id} timeout={1000} classNames='appointment'>
+			<div className="appointment">
+				<div className="appointment__info">
+					<span className="appointment__date">{formattedDate}</span>
+					<span className="appointment__name">Name: {name}</span>
+					<span className="appointment__service">Service: {service}</span>
+					<span className="appointment__phone">Phone: {phone}</span>
+				</div>
+				{!canceled ? (
+					<>
+						<div className="appointment__time">
+							<span>Time left:</span>
+							<span className="appointment__timer">{timeLeft}</span>
+						</div>
+						<button 
+							className="appointment__cancel" 
+							onClick={() => modalOpen(id)}
+						>Cancel</button>
+					</>
+				) : null}
+				{canceled ? <div className="appointment__canceled">Canceled</div> : null}
 			</div>
-			{!canceled ? (
-				<>
-					<div className="appointment__time">
-						<span>Time left:</span>
-						<span className="appointment__timer">{timeLeft}</span>
-					</div>
-					<button 
-						className="appointment__cancel" 
-						onClick={() => modalOpen(id)}
-					>Cancel</button>
-				</>
-			) : null}
-			{canceled ? <div className="appointment__canceled">Canceled</div> : null}
-		</div>
+		</CSSTransition>
 	);
 })
 

@@ -1,6 +1,7 @@
 import Portal from "../portal/portal";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useContext } from "react";
 import { CSSTransition } from "react-transition-group";
+import { AppointmentContext } from '../../context/appointments/AppointmentsContext';
 import "./modal.scss";
 
 interface IMpdalProps {
@@ -10,6 +11,15 @@ interface IMpdalProps {
 }
 
 function CancelModal({handleClose, selectedId, isOpen}: IMpdalProps) {
+	// достаем данные из контекста
+	const { canceledActiveAppointment } = useContext(AppointmentContext);
+
+	// функция подтверждения удаления записи
+	const handleDeleteAppointment = () => {
+		canceledActiveAppointment(selectedId);
+		handleClose(false);
+	}
+
 	// создадим реф - типизируем его так как он будет работать с div
 	const nodeRef = useRef<HTMLDivElement>(null);
 
@@ -43,7 +53,7 @@ function CancelModal({handleClose, selectedId, isOpen}: IMpdalProps) {
 							Are you sure you want to delete the appointment?
 						</span>
 						<div className="modal__btns">
-							<button className="modal__ok">Ok</button>
+							<button className="modal__ok" onClick={handleDeleteAppointment}>Ok</button>
 							<button className="modal__close" onClick={() => handleClose(false)}>Close</button>
 						</div>
 						<div className="modal__status">Success</div>
