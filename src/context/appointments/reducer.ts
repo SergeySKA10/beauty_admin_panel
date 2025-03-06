@@ -28,17 +28,6 @@ export default function reducer(
             return {...state, appointmentLoadingStatus: 'loading'}
         case ActionsTypes.ERROR_FETCHING_APPOINTMENTS:
             return {...state, appointmentLoadingStatus: 'error'}
-        case ActionsTypes.PATCH_ACTIVE_APPOINTMENTS:
-            return {
-                ...state,
-                allAppointments: state.allAppointments.map(el => {
-                    if (el.id === action.payload) {
-                        el.canceled = true;
-                    }
-                    return el;
-                }),
-                activeAppointments: state.activeAppointments.filter(el => el.id !== action.payload)
-            }
         default:
             return state;
     }

@@ -43,16 +43,14 @@ const useAppointmentService = () => {
     }
 
     // функционал по внесению изменения данных в бд
-    const patchActiveAppointment = async(id: number): Promise<ActiveAppointment[]> => {
-        const res = await request({
+    const patchActiveAppointment = async(id: number): Promise<any> => {
+        return await request({
             url: `${_apiBase}/${id}`,
             method: "PATCH",
             body: JSON.stringify({
                 canceled: true
             })
         });
-
-        return res;
     }
 
     return {

@@ -1,7 +1,8 @@
 import Portal from "../portal/portal";
-import { useRef, useEffect, useContext } from "react";
+import { useRef, useEffect, useState, useContext } from "react";
+import useAppointmentService from "../../services/AppointmentService";
+import { AppointmentContext } from "../../context/appointments/AppointmentsContext";
 import { CSSTransition } from "react-transition-group";
-import { AppointmentContext } from '../../context/appointments/AppointmentsContext';
 import "./modal.scss";
 
 interface IMpdalProps {
@@ -11,13 +12,35 @@ interface IMpdalProps {
 }
 
 function CancelModal({handleClose, selectedId, isOpen}: IMpdalProps) {
-	// достаем данные из контекста
-	const { canceledActiveAppointment } = useContext(AppointmentContext);
+	// получаем функции запросов из контекста
+	const { getActiveAppointments } = useContext(AppointmentContext);
 
-	// функция подтверждения удаления записи
-	const handleDeleteAppointment = () => {
-		canceledActiveAppointment(selectedId);
+	// достаем запрос по изменению данных в бд (в обоход context так как работает толко с этим компонентом)
+	const {patchActiveAppointment} = useAppointmentService();
+
+	const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
+	const [cancelStatus, setCancelStatus] = useState<boolean | null>(null);
+
+	// // функция по отмене записи
+	const handleCancelAppointment = (id: number) => {
+		setBtnDisabled(true);
+		patchActiveAppointment(id)
+			.then(() => {
+				setCancelStatus(true);
+			})
+			.catch(() => {
+				setCancelStatus(false);
+				setBtnDisabled(false);
+			})
+	}
+
+	// функция закрытия модального окна
+	const closeModal = () => {
 		handleClose(false);
+		// проверка на отмену записи пользователем
+		if (cancelStatus) {
+			getActiveAppointments();
+		}
 	}
 
 	// создадим реф - типизируем его так как он будет работать с div
@@ -26,7 +49,7 @@ function CancelModal({handleClose, selectedId, isOpen}: IMpdalProps) {
 	// функция закрытия модального окна при нажатии на клавишу Escape
 	function keyboardCloseModal(e: KeyboardEvent): void {
 		if (e.code === 'Escape') {
-			handleClose(false);
+			closeModal();
 		}
 	}
 
@@ -36,7 +59,7 @@ function CancelModal({handleClose, selectedId, isOpen}: IMpdalProps) {
 		return () => {
 			window.removeEventListener('keydown', keyboardCloseModal);
 		}
-	}, []);
+	}, [cancelStatus]);
 
 	return (
 		<Portal>
@@ -53,10 +76,12 @@ function CancelModal({handleClose, selectedId, isOpen}: IMpdalProps) {
 							Are you sure you want to delete the appointment?
 						</span>
 						<div className="modal__btns">
-							<button className="modal__ok" onClick={handleDeleteAppointment}>Ok</button>
-							<button className="modal__close" onClick={() => handleClose(false)}>Close</button>
+							<button className="modal__ok" disabled={btnDisabled} onClick={() => {
+								handleCancelAppointment(selectedId);
+							}}>Ok</button>
+							<button className="modal__close" onClick={closeModal}>Close</button>
 						</div>
-						<div className="modal__status">Success</div>
+						<div className="modal__status">{cancelStatus ? 'Success' : null}</div>
 					</div>
 				</div>
 			</CSSTransition>

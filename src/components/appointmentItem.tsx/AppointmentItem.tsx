@@ -8,11 +8,12 @@ import "./appointmentItem.scss";
 
 type AppointmentProps = Optional<IAppointment, 'canceled'> & {
 	modalOpen: (state: number) => void;
+	getActiveAppointments: () => void;
 }
 
 // создаем мемоизированный компонент, чтобы перерендер происходил тогда, когда меняeтся props
 
-const AppointmentItem = memo(({id, date, name, service, phone, canceled, modalOpen}: AppointmentProps) => {
+const AppointmentItem = memo(({id, date, name, service, phone, canceled, modalOpen, getActiveAppointments}: AppointmentProps) => {
 	// с помощью библиотеки форматируем дату
 	const formattedDate = dayjs(date).format("DD/MM/YYYY HH:mm");
 
@@ -20,12 +21,22 @@ const AppointmentItem = memo(({id, date, name, service, phone, canceled, modalOp
 	const [timeLeft, changeTimeLeft] = useState<string | null>(null);
 
 	// функция вычисления времени записи
-	const getTimeStatus = (): string[] => {
+	const getTimeStatus = (): number[] => {
 		// вычисление часов и минут
-		let h: string = dayjs(date).diff(undefined, 'h') >= 10 ? `${dayjs(date).diff(undefined, 'h')}` : `0${dayjs(date).diff(undefined, 'h')}`;
-		let m: string = (dayjs(date).diff(undefined, 'm') % 60) >= 10 ? `${dayjs(date).diff(undefined, 'm') % 60}` : `0${dayjs(date).diff(undefined, 'm') % 60}`;
+		const h: number = dayjs(date).diff(undefined, 'h');
+		const m: number = (dayjs(date).diff(undefined, 'm') % 60);
 
 		return [h, m];
+	}
+
+	// проверка для значений таймера и добавление 0
+	const validateTime = (n: number): string => {
+		if (n < 10) {
+			return `0${n}`;
+		} else {
+			return `${n}`;
+		}
+
 	}
 
 	// формирование таймера помнтуного отсчета до записи
@@ -34,10 +45,21 @@ const AppointmentItem = memo(({id, date, name, service, phone, canceled, modalOp
 		const [h, m] = getTimeStatus();
 
 		// установим изначальное время
-		changeTimeLeft(`${h}:${m}`);
+		changeTimeLeft(`${validateTime(h)}:${validateTime(m)}`);
+
+		// созаем таймер именения времени
 		const timer = setInterval(() => {
 			const [h, m] = getTimeStatus();
-			changeTimeLeft(`${h}:${m}`);
+
+			// условия обновления записей при нулевом времени
+			if (m <= 0) {
+				if (getActiveAppointments) {
+					getActiveAppointments();
+				}
+				clearInterval(timer);
+			} else {
+				changeTimeLeft(`${h}:${m}`);
+			}
 		}, 60000)
 		return () => clearInterval(timer)
 	}, [date])

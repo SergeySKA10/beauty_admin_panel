@@ -48,7 +48,8 @@ function AppointmentList() {
 			{activeAppointments.map(el => {
 				return <AppointmentItem 
 					{...el} 
-					modalOpen={handleOpenModal} 
+					modalOpen={handleOpenModal}
+					getActiveAppointments={getActiveAppointments} 
 					key={el.id}/>	
 			})}
 			<CancelModal handleClose={setIsOpen} selectedId={selectedId} isOpen={isOpen}/>
