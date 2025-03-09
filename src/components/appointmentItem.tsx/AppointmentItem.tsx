@@ -7,13 +7,13 @@ import { CSSTransition } from 'react-transition-group';
 import "./appointmentItem.scss";
 
 type AppointmentProps = Optional<IAppointment, 'canceled'> & {
-	modalOpen: (state: number) => void;
-	getActiveAppointments: () => void;
+	modalOpen?: (state: number) => void;
+	getAppointments?: () => void;
 }
 
 // создаем мемоизированный компонент, чтобы перерендер происходил тогда, когда меняeтся props
 
-const AppointmentItem = memo(({id, date, name, service, phone, canceled, modalOpen, getActiveAppointments}: AppointmentProps) => {
+const AppointmentItem = memo(({id, date, name, service, phone, canceled, modalOpen, getAppointments}: AppointmentProps) => {
 	// с помощью библиотеки форматируем дату
 	const formattedDate = dayjs(date).format("DD/MM/YYYY HH:mm");
 
@@ -53,8 +53,8 @@ const AppointmentItem = memo(({id, date, name, service, phone, canceled, modalOp
 
 			// условия обновления записей при нулевом времени
 			if (m <= 0) {
-				if (getActiveAppointments) {
-					getActiveAppointments();
+				if (getAppointments) {
+					getAppointments();
 				}
 				clearInterval(timer);
 			} else {
@@ -73,7 +73,7 @@ const AppointmentItem = memo(({id, date, name, service, phone, canceled, modalOp
 					<span className="appointment__service">Service: {service}</span>
 					<span className="appointment__phone">Phone: {phone}</span>
 				</div>
-				{!canceled ? (
+				{!canceled && modalOpen ? (
 					<>
 						<div className="appointment__time">
 							<span>Time left:</span>

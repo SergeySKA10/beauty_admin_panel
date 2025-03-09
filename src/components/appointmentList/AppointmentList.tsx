@@ -8,7 +8,7 @@ import { TransitionGroup } from 'react-transition-group';
 
 function AppointmentList() {
 	// достаем данные из контекста
-	const {activeAppointments, getActiveAppointments, appointmentLoadingStatus} = useContext(AppointmentContext);
+	const {activeAppointments, getActiveAppointments, appointmentLoadingStatus, calendarDate} = useContext(AppointmentContext);
 
 	// создаем state для модального окна
 	const [isOpen, setIsOpen] = useState(false); 
@@ -18,7 +18,7 @@ function AppointmentList() {
 	// запрос данных
 	useEffect(() => {
 		getActiveAppointments(); // делаем запрос
-	}, []);
+	}, [calendarDate]);
 
 	// создаем функцию открытия модального окна и кешируем ее работу, чтобы недопустить лишнего рендера компонентов
 	const handleOpenModal = useCallback((id: number): void => {
@@ -49,7 +49,7 @@ function AppointmentList() {
 				return <AppointmentItem 
 					{...el} 
 					modalOpen={handleOpenModal}
-					getActiveAppointments={getActiveAppointments} 
+					getAppointments={getActiveAppointments} 
 					key={el.id}/>	
 			})}
 			<CancelModal handleClose={setIsOpen} selectedId={selectedId} isOpen={isOpen}/>

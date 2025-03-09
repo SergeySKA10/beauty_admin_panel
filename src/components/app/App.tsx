@@ -43,7 +43,7 @@ function Root() {
 		<main className="board">
 			<Header />
 			<AppointmentContextProvider>
-				<Outlet />
+				<Outlet/>
 			</AppointmentContextProvider>
 		</main>
 	)
